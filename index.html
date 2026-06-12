@@ -939,41 +939,45 @@ renderPreview();
 
 /* ---------- ACTIONS ---------- */
 
-document.getElementById('downloadBtn').addEventListener('click', ()=>{
-window.print();
-});
-
-document.getElementById('clearBtn').addEventListener('click', ()=>{
-if(!confirm('Clear all fields and start over?')) return;
-['fullName','jobTitle','email','phone','location','links','summary','skills'].forEach(id=>{
-document.getElementById(id).value = '';
-});
-document.getElementById('educationList').innerHTML = '';
-document.getElementById('experienceList').innerHTML = '';
-document.getElementById('projectsList').innerHTML = '';
-renderPreview();
-});
-
 document.getElementById('sampleBtn').addEventListener('click', ()=>{
-document.getElementById('fullName').value = 'John dae';
-document.getElementById('jobTitle').value = 'AI Engineer';
-document.getElementById('email').value = 'john.dae@gmail.com';
+
+document.getElementById('fullName').value = 'Ram';
+document.getElementById('jobTitle').value = 'Software Developer';
+document.getElementById('email').value = '[ram@example.com](mailto:ram@example.com)';
 document.getElementById('phone').value = '+91 1234567890';
-document.getElementById('location').value = 'Hyderabad, India';
-document.getElementById('links').value = 'linkedin.com/in/johndae, github.com/johndae';
+document.getElementById('location').value = 'Vijayawada, India';
+document.getElementById('links').value = 'linkedin.com/in/ram, github.com/ram';
 document.getElementById('summary').value = '';
-document.getElementById('skills').value = 'Java, Python, SQL, n8n, JavaScript, REST APIs, Gemini AI';
+document.getElementById('skills').value = 'Java, Python, SQL, JavaScript, HTML, CSS, Git, REST APIs';
 
 document.getElementById('educationList').innerHTML = '';
 document.getElementById('experienceList').innerHTML = '';
 document.getElementById('projectsList').innerHTML = '';
 
-addEducationEntry({degree:'B.Tech, Computer Science & Engineering', school:'ABC University', years:'2013 - 2017', notes:'CGPA 8.5 / 10'});
-addExperienceEntry({title:'Automation Intern', company:'Acme Corp', duration:'Jun 2016 - Aug 2016', desc:'Built n8n workflows to automate internal reporting\nIntegrated Gemini AI for content generation tasks\nReduced manual data entry time by 60%'});
-addProjectEntry({title:'AI Resume Builder', tech:'n8n, Gemini AI, Gmail API, PDF Generation API', desc:'Designed an end-to-end workflow that generates ATS-friendly resumes\nAutomated PDF creation and email delivery to users'});
+addEducationEntry({
+degree:'B.Tech, Computer Science',
+school:'ABC University',
+years:'2021 - 2025',
+notes:'CGPA 8.5 / 10'
+});
+
+addExperienceEntry({
+title:'Software Developer Intern',
+company:'Tech Solutions Pvt Ltd',
+duration:'Jan 2024 - Jun 2024',
+desc:'Developed web applications using JavaScript and REST APIs\nWorked with backend teams to integrate database-driven features\nImproved application performance and fixed production bugs'
+});
+
+addProjectEntry({
+title:'Online Library Management System',
+tech:'Java, MySQL, HTML, CSS',
+desc:'Built a complete library management platform for students and staff\nImplemented book issue, return and search functionality\nDesigned an easy-to-use interface with database integration'
+});
 
 renderPreview();
+
 });
+
 
 /* ---------- INIT ---------- */
 
