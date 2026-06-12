@@ -942,36 +942,39 @@ renderPreview();
 document.getElementById('sampleBtn').addEventListener('click', ()=>{
 
 document.getElementById('fullName').value = 'Ram';
-document.getElementById('jobTitle').value = 'Fresher';
+document.getElementById('jobTitle').value = 'AI Engineer';
 document.getElementById('email').value = 'ram@gmail.com';
 document.getElementById('phone').value = '+91 1234567890';
 document.getElementById('location').value = 'Vijayawada, India';
 document.getElementById('links').value = 'linkedin.com/in/ram, github.com/ram';
-document.getElementById('summary').value = '';
-document.getElementById('skills').value = 'Java, Python, SQL, JavaScript, HTML, CSS, Git, REST APIs';
+
+document.getElementById('summary').value =
+'AI Engineer fresher passionate about Machine Learning, Deep Learning, NLP and Generative AI. Skilled in building AI-powered applications and solving real-world problems using data-driven approaches.';
+
+document.getElementById('skills').value =
+'Python, Machine Learning, Deep Learning, TensorFlow, PyTorch, NLP, Generative AI, SQL, Git';
 
 document.getElementById('educationList').innerHTML = '';
 document.getElementById('experienceList').innerHTML = '';
 document.getElementById('projectsList').innerHTML = '';
 
 addEducationEntry({
-degree:'B.Tech, Computer Science',
-school:'ABC University',
+degree:'B.Tech Artificial Intelligence',
+school:'University',
 years:'2021 - 2025',
 notes:'CGPA 8.5 / 10'
 });
 
-addExperienceEntry({
-title:'Software Developer Intern',
-company:'Tech Solutions Pvt Ltd',
-duration:'Jan 2024 - Jun 2024',
-desc:'Developed web applications using JavaScript and REST APIs\nWorked with backend teams to integrate database-driven features\nImproved application performance and fixed production bugs'
+addProjectEntry({
+title:'AI Resume Builder',
+tech:'Python, Gemini AI, HTML, CSS, JavaScript',
+desc:'Built an AI-powered resume builder\nGenerated ATS-friendly resumes automatically\nIntegrated AI for resume enhancement'
 });
 
 addProjectEntry({
-title:'Online Library Management System',
-tech:'Java, MySQL, HTML, CSS',
-desc:'Built a complete library management platform for students and staff\nImplemented book issue, return and search functionality\nDesigned an easy-to-use interface with database integration'
+title:'Student Performance Prediction',
+tech:'Python, Machine Learning, Scikit-learn',
+desc:'Developed ML model for prediction\nPerformed data preprocessing and feature engineering\nAchieved high prediction accuracy'
 });
 
 renderPreview();
@@ -981,10 +984,7 @@ renderPreview();
 
 /* ---------- INIT ---------- */
 
-addEducationEntry();
-addExperienceEntry();
-addProjectEntry();
-renderPreview();
+document.getElementById('sampleBtn').click();
 
 </script>
 
