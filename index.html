@@ -1,0 +1,988 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="color-scheme" content="dark">
+<meta name="theme-color" content="#0b1410">
+
+<title>AI Resume Builder — n8n + Gemini AI</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&display=swap" rel="stylesheet">
+
+<style>
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:'Space Grotesk',sans-serif;
+}
+
+html{
+scroll-behavior:smooth;
+background-color:#0b1410;
+color-scheme:dark;
+}
+
+:root{
+--bg:#0b1410;
+--card:#101c17;
+--card2:#16241e;
+--accent:#5eead4;
+--accent2:#fbbf24;
+--paper:#f7f5ee;
+--paper-ink:#1f2a24;
+--text:#eef7f3;
+--muted:#8aa39a;
+--border:#23362e;
+}
+
+body{
+background:var(--bg);
+color:var(--text);
+overflow-x:hidden;
+}
+
+/* NAV */
+nav{
+position:fixed;
+top:0;
+left:0;
+width:100%;
+display:flex;
+justify-content:space-between;
+align-items:center;
+padding:18px 8%;
+background:rgba(11,20,16,.9);
+backdrop-filter:blur(12px);
+border-bottom:1px solid var(--border);
+z-index:1000;
+}
+
+.logo{
+font-size:1.2rem;
+font-weight:700;
+color:var(--accent);
+display:flex;
+align-items:center;
+gap:8px;
+}
+
+nav ul{
+display:flex;
+list-style:none;
+gap:25px;
+}
+
+.nav-tag{
+color:var(--muted);
+font-size:.85rem;
+letter-spacing:.04em;
+}
+
+nav a{
+color:var(--muted);
+text-decoration:none;
+transition:.3s;
+}
+
+nav a:hover{
+color:var(--accent);
+}
+
+/* SECTIONS */
+section{
+max-width:1300px;
+margin:auto;
+padding:110px 20px 60px;
+}
+
+.section-title{
+text-align:center;
+font-family:'Source Serif 4', serif;
+font-weight:600;
+font-size:2.2rem;
+margin-bottom:10px;
+}
+
+.section-sub{
+text-align:center;
+color:var(--muted);
+margin-bottom:40px;
+}
+
+/* BUILDER LAYOUT */
+.builder{
+display:grid;
+grid-template-columns:1.1fr 1fr;
+gap:24px;
+align-items:flex-start;
+}
+
+@media(max-width:980px){
+.builder{
+grid-template-columns:1fr;
+}
+}
+
+.panel{
+background:var(--card);
+border:1px solid var(--border);
+border-radius:18px;
+padding:24px;
+}
+
+.panel h3{
+font-size:1.05rem;
+margin-bottom:4px;
+}
+
+.panel-sub{
+color:var(--muted);
+font-size:.85rem;
+margin-bottom:18px;
+}
+
+.form-section{
+border-top:1px solid var(--border);
+padding-top:18px;
+margin-top:18px;
+}
+
+.form-section:first-of-type{
+border-top:none;
+padding-top:0;
+margin-top:0;
+}
+
+.form-section-head{
+display:flex;
+justify-content:space-between;
+align-items:center;
+margin-bottom:12px;
+}
+
+.form-section-head h4{
+font-size:.95rem;
+text-transform:uppercase;
+letter-spacing:.06em;
+color:var(--accent);
+}
+
+.field{
+margin-bottom:14px;
+}
+
+.field label{
+display:block;
+font-size:.8rem;
+text-transform:uppercase;
+letter-spacing:.06em;
+color:var(--muted);
+margin-bottom:6px;
+}
+
+.field input,
+.field textarea,
+.field select{
+width:100%;
+padding:11px 13px;
+border-radius:8px;
+background:var(--card2);
+border:1px solid var(--border);
+color:var(--text);
+font-family:inherit;
+font-size:.92rem;
+resize:vertical;
+}
+
+.field input:focus,
+.field textarea:focus,
+.field select:focus{
+outline:none;
+border-color:var(--accent);
+}
+
+.field small{
+display:block;
+margin-top:5px;
+color:var(--muted);
+font-size:.75rem;
+}
+
+.row2{
+display:grid;
+grid-template-columns:1fr 1fr;
+gap:12px;
+}
+
+@media(max-width:520px){
+.row2{
+grid-template-columns:1fr;
+}
+}
+
+.entry-card{
+background:var(--card2);
+border:1px solid var(--border);
+border-radius:12px;
+padding:16px;
+margin-bottom:14px;
+position:relative;
+}
+
+.entry-card .remove-btn{
+position:absolute;
+top:10px;
+right:10px;
+background:transparent;
+border:1px solid var(--border);
+color:var(--muted);
+border-radius:6px;
+width:28px;
+height:28px;
+cursor:pointer;
+font-size:.9rem;
+line-height:1;
+}
+
+.entry-card .remove-btn:hover{
+border-color:#ff6b6b;
+color:#ff6b6b;
+}
+
+.add-btn{
+width:100%;
+padding:11px;
+border-radius:8px;
+border:1px dashed var(--border);
+background:transparent;
+color:var(--accent);
+font-weight:600;
+cursor:pointer;
+font-size:.88rem;
+transition:.2s;
+}
+
+.add-btn:hover{
+border-color:var(--accent);
+background:rgba(94,234,212,0.06);
+}
+
+.builder-actions{
+display:flex;
+gap:10px;
+margin-top:22px;
+flex-wrap:wrap;
+}
+
+.builder-actions .btn{
+flex:1;
+min-width:140px;
+text-align:center;
+font-size:.92rem;
+padding:13px 18px;
+}
+
+.btn{
+padding:14px 26px;
+border-radius:10px;
+text-decoration:none;
+font-weight:700;
+transition:.3s;
+border:1px solid transparent;
+cursor:pointer;
+font-size:1rem;
+}
+
+.primary{
+background:var(--accent);
+color:#0b1410;
+}
+
+.secondary{
+border:1px solid var(--border);
+color:var(--text);
+background:transparent;
+}
+
+.btn:hover{
+transform:translateY(-3px);
+}
+
+/* PREVIEW */
+.preview-panel{
+position:sticky;
+top:90px;
+}
+
+.preview-toolbar{
+display:flex;
+justify-content:space-between;
+align-items:center;
+margin-bottom:14px;
+gap:10px;
+flex-wrap:wrap;
+}
+
+.preview-toolbar .ats{
+display:flex;
+align-items:center;
+gap:10px;
+font-size:.85rem;
+color:var(--muted);
+}
+
+.ats-num{
+font-weight:700;
+color:var(--accent);
+font-size:1.1rem;
+}
+
+.template-select{
+display:flex;
+gap:8px;
+}
+
+.template-select button{
+padding:8px 14px;
+border-radius:8px;
+border:1px solid var(--border);
+background:var(--card2);
+color:var(--muted);
+font-size:.8rem;
+cursor:pointer;
+transition:.2s;
+}
+
+.template-select button.active{
+border-color:var(--accent);
+color:var(--accent);
+}
+
+.resume-paper{
+background:var(--paper);
+color:var(--paper-ink);
+border-radius:6px;
+padding:36px;
+font-family:'Source Serif 4', serif;
+box-shadow:0 20px 50px rgba(0,0,0,.4);
+min-height:600px;
+font-size:.92rem;
+line-height:1.55;
+}
+
+.resume-paper.tpl-modern{
+font-family:'Space Grotesk',sans-serif;
+}
+
+.resume-paper .r-name{
+font-size:1.7rem;
+font-weight:700;
+margin-bottom:2px;
+}
+
+.resume-paper.tpl-modern .r-name{
+color:#0e7c66;
+}
+
+.resume-paper .r-title{
+font-size:.95rem;
+color:#5b6b63;
+margin-bottom:6px;
+}
+
+.resume-paper .r-contact{
+font-size:.78rem;
+color:#5b6b63;
+margin-bottom:16px;
+font-family:'Space Grotesk',sans-serif;
+}
+
+.resume-paper h4{
+font-size:.8rem;
+text-transform:uppercase;
+letter-spacing:.1em;
+border-bottom:1px solid #d8d4c4;
+padding-bottom:5px;
+margin:16px 0 8px;
+color:#3a4a42;
+}
+
+.resume-paper.tpl-modern h4{
+color:#0e7c66;
+border-bottom-color:#cfe9e2;
+}
+
+.resume-paper .r-empty{
+color:#9aa79f;
+font-style:italic;
+font-size:.85rem;
+}
+
+.skill-tags{
+display:flex;
+flex-wrap:wrap;
+gap:6px;
+}
+
+.skill-tag{
+padding:3px 11px;
+border-radius:20px;
+background:#e8e4d4;
+font-size:.75rem;
+font-family:'Space Grotesk',sans-serif;
+}
+
+.resume-paper.tpl-modern .skill-tag{
+background:#d6f3ec;
+color:#0e7c66;
+}
+
+.entry-block{
+margin-bottom:10px;
+}
+
+.entry-block .e-head{
+display:flex;
+justify-content:space-between;
+font-weight:600;
+font-size:.9rem;
+}
+
+.entry-block .e-sub{
+font-size:.8rem;
+color:#5b6b63;
+margin-bottom:3px;
+}
+
+.entry-block ul{
+margin:4px 0 0 18px;
+}
+
+.entry-block li{
+font-size:.83rem;
+font-family:'Space Grotesk',sans-serif;
+}
+
+/* PRINT */
+@media print{
+body *{
+visibility:hidden;
+}
+#resumePaper, #resumePaper *{
+visibility:visible;
+}
+#resumePaper{
+position:absolute;
+top:0;
+left:0;
+width:100%;
+box-shadow:none;
+border-radius:0;
+}
+}
+</style>
+</head>
+<body>
+
+<nav>
+<div class="logo">📄 AI Resume Builder</div>
+<div class="nav-tag">n8n · Gemini AI · Gmail · PDF Generation</div>
+</nav>
+
+<section id="builder">
+<h2 class="section-title">Build your own ATS-friendly resume</h2>
+<p class="section-sub">Everything you type updates the preview instantly. Nothing is uploaded — it all stays in your browser.</p>
+
+<div class="builder">
+
+<!-- FORM PANEL -->
+<div class="panel">
+<h3>Your Details</h3>
+<div class="panel-sub">Add as many education, experience and project entries as you need.</div>
+
+<!-- PERSONAL INFO -->
+<div class="form-section">
+<div class="form-section-head"><h4>Personal Info</h4></div>
+
+<div class="field">
+<label for="fullName">Full Name</label>
+<input type="text" id="fullName" placeholder="e.g. Karthikeya">
+</div>
+
+<div class="row2">
+<div class="field">
+<label for="jobTitle">Target Role / Title</label>
+<input type="text" id="jobTitle" placeholder="e.g. Software Engineer">
+</div>
+<div class="field">
+<label for="email">Email</label>
+<input type="email" id="email" placeholder="you@example.com">
+</div>
+</div>
+
+<div class="row2">
+<div class="field">
+<label for="phone">Phone</label>
+<input type="text" id="phone" placeholder="+91 90000 00000">
+</div>
+<div class="field">
+<label for="location">Location</label>
+<input type="text" id="location" placeholder="City, Country">
+</div>
+</div>
+
+<div class="field">
+<label for="links">Links</label>
+<input type="text" id="links" placeholder="LinkedIn, GitHub, Portfolio (comma separated)">
+</div>
+</div>
+
+<!-- SUMMARY -->
+<div class="form-section">
+<div class="form-section-head"><h4>Professional Summary</h4></div>
+<div class="field">
+<textarea id="summary" rows="3" placeholder="2-3 sentences about your background, strengths and goals. Leave blank and we'll draft one from your details."></textarea>
+<small>Tip: leave this empty to auto-generate a summary from your skills and experience.</small>
+</div>
+</div>
+
+<!-- SKILLS -->
+<div class="form-section">
+<div class="form-section-head"><h4>Skills</h4></div>
+<div class="field">
+<input type="text" id="skills" placeholder="e.g. Java, Python, SQL, n8n, REST APIs">
+<small>Comma separated. These appear as tags on your resume.</small>
+</div>
+</div>
+
+<!-- EDUCATION -->
+<div class="form-section">
+<div class="form-section-head">
+<h4>Education</h4>
+</div>
+<div id="educationList"></div>
+<button class="add-btn" id="addEducation">+ Add Education</button>
+</div>
+
+<!-- EXPERIENCE -->
+<div class="form-section">
+<div class="form-section-head">
+<h4>Experience</h4>
+</div>
+<div id="experienceList"></div>
+<button class="add-btn" id="addExperience">+ Add Experience</button>
+</div>
+
+<!-- PROJECTS -->
+<div class="form-section">
+<div class="form-section-head">
+<h4>Projects</h4>
+</div>
+<div id="projectsList"></div>
+<button class="add-btn" id="addProject">+ Add Project</button>
+</div>
+
+<div class="builder-actions">
+<button class="btn primary" id="downloadBtn">⬇ Download PDF</button>
+<button class="btn secondary" id="clearBtn">Clear All</button>
+<button class="btn secondary" id="sampleBtn">Load Sample</button>
+</div>
+
+</div>
+
+<!-- PREVIEW PANEL -->
+<div class="preview-panel">
+
+<div class="preview-toolbar">
+<div class="ats">
+ATS Score: <span class="ats-num" id="atsNum">—</span>
+</div>
+<div class="template-select">
+<button class="active" data-tpl="classic">Classic</button>
+<button data-tpl="modern">Modern</button>
+</div>
+</div>
+
+<div class="resume-paper tpl-classic" id="resumePaper">
+
+<div class="r-name" id="pName">Your Name</div>
+<div class="r-title" id="pTitle"></div>
+<div class="r-contact" id="pContact"></div>
+
+<h4>Summary</h4>
+<p id="pSummary" class="r-empty">Your professional summary will appear here.</p>
+
+<h4>Skills</h4>
+<div class="skill-tags" id="pSkills"></div>
+
+<h4>Experience</h4>
+<div id="pExperience"><p class="r-empty">Add an experience entry to see it here.</p></div>
+
+<h4>Projects</h4>
+<div id="pProjects"><p class="r-empty">Add a project to see it here.</p></div>
+
+<h4>Education</h4>
+<div id="pEducation"><p class="r-empty">Add an education entry to see it here.</p></div>
+
+</div>
+
+</div>
+
+
+</div>
+</section>
+
+<script>
+
+let entryId = 0;
+
+function makeEntryId(prefix){
+entryId += 1;
+return prefix + '_' + entryId;
+}
+
+/* ---------- EDUCATION ---------- */
+
+function addEducationEntry(data){
+data = data || {};
+const id = makeEntryId('edu');
+const wrap = document.createElement('div');
+wrap.className = 'entry-card';
+wrap.dataset.id = id;
+wrap.innerHTML = `
+<button class="remove-btn" title="Remove">✕</button>
+<div class="row2">
+<div class="field">
+<label>Degree / Course</label>
+<input type="text" class="edu-degree" placeholder="e.g. B.Tech, Computer Science" value="${data.degree||''}">
+</div>
+<div class="field">
+<label>Institution</label>
+<input type="text" class="edu-school" placeholder="e.g. ABC University" value="${data.school||''}">
+</div>
+</div>
+<div class="row2">
+<div class="field">
+<label>Years</label>
+<input type="text" class="edu-years" placeholder="e.g. 2022 - 2026" value="${data.years||''}">
+</div>
+<div class="field">
+<label>Score / Notes</label>
+<input type="text" class="edu-notes" placeholder="e.g. CGPA 8.7" value="${data.notes||''}">
+</div>
+</div>
+`;
+document.getElementById('educationList').appendChild(wrap);
+wrap.querySelector('.remove-btn').addEventListener('click', ()=>{
+wrap.remove();
+renderPreview();
+});
+wrap.querySelectorAll('input').forEach(i=>i.addEventListener('input', renderPreview));
+}
+
+/* ---------- EXPERIENCE ---------- */
+
+function addExperienceEntry(data){
+data = data || {};
+const id = makeEntryId('exp');
+const wrap = document.createElement('div');
+wrap.className = 'entry-card';
+wrap.dataset.id = id;
+wrap.innerHTML = `
+<button class="remove-btn" title="Remove">✕</button>
+<div class="row2">
+<div class="field">
+<label>Job Title</label>
+<input type="text" class="exp-title" placeholder="e.g. Software Engineering Intern" value="${data.title||''}">
+</div>
+<div class="field">
+<label>Company</label>
+<input type="text" class="exp-company" placeholder="e.g. Acme Corp" value="${data.company||''}">
+</div>
+</div>
+<div class="field">
+<label>Duration</label>
+<input type="text" class="exp-duration" placeholder="e.g. Jun 2025 - Aug 2025" value="${data.duration||''}">
+</div>
+<div class="field">
+<label>Highlights</label>
+<textarea class="exp-desc" rows="3" placeholder="One per line, e.g.&#10;Built X using Y&#10;Improved Z by 20%">${data.desc||''}</textarea>
+<small>One bullet point per line.</small>
+</div>
+`;
+document.getElementById('experienceList').appendChild(wrap);
+wrap.querySelector('.remove-btn').addEventListener('click', ()=>{
+wrap.remove();
+renderPreview();
+});
+wrap.querySelectorAll('input, textarea').forEach(i=>i.addEventListener('input', renderPreview));
+}
+
+/* ---------- PROJECTS ---------- */
+
+function addProjectEntry(data){
+data = data || {};
+const id = makeEntryId('proj');
+const wrap = document.createElement('div');
+wrap.className = 'entry-card';
+wrap.dataset.id = id;
+wrap.innerHTML = `
+<button class="remove-btn" title="Remove">✕</button>
+<div class="field">
+<label>Project Title</label>
+<input type="text" class="proj-title" placeholder="e.g. AI Resume Builder" value="${data.title||''}">
+</div>
+<div class="field">
+<label>Tech Used</label>
+<input type="text" class="proj-tech" placeholder="e.g. n8n, Gemini AI, Gmail API" value="${data.tech||''}">
+</div>
+<div class="field">
+<label>Description</label>
+<textarea class="proj-desc" rows="2" placeholder="One per line, e.g.&#10;Automated resume generation and delivery&#10;Reduced manual formatting time to zero">${data.desc||''}</textarea>
+<small>One bullet point per line.</small>
+</div>
+`;
+document.getElementById('projectsList').appendChild(wrap);
+wrap.querySelector('.remove-btn').addEventListener('click', ()=>{
+wrap.remove();
+renderPreview();
+});
+wrap.querySelectorAll('input, textarea').forEach(i=>i.addEventListener('input', renderPreview));
+}
+
+/* ---------- HELPERS ---------- */
+
+function escapeHtml(str){
+return (str||'').replace(/[&<>"']/g, m=>({
+'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
+}[m]));
+}
+
+function bulletsToList(text){
+const lines = (text||'').split('\n').map(l=>l.trim()).filter(Boolean);
+if(lines.length === 0) return '';
+return '<ul>' + lines.map(l=>`<li>${escapeHtml(l)}</li>`).join('') + '</ul>';
+}
+
+function autoSummary(){
+const title = document.getElementById('jobTitle').value.trim();
+const skills = document.getElementById('skills').value.trim();
+const skillList = skills.split(',').map(s=>s.trim()).filter(Boolean);
+const topSkills = skillList.slice(0,3).join(', ');
+
+const expCards = document.querySelectorAll('#experienceList .entry-card');
+const hasExperience = expCards.length > 0;
+
+let intro = title
+? `${title} candidate`
+: 'Motivated candidate';
+
+let body = hasExperience
+? 'with hands-on professional experience'
+: 'with strong academic and project experience';
+
+let skillsPart = topSkills
+? `, skilled in ${topSkills}`
+: '';
+
+return `${intro} ${body}${skillsPart}. Focused on writing clean, maintainable solutions and continuously learning new tools and technologies to deliver practical results.`;
+}
+
+function calculateAts(){
+const skills = document.getElementById('skills').value.trim();
+const skillCount = skills.split(',').map(s=>s.trim()).filter(Boolean).length;
+const summary = document.getElementById('summary').value.trim() || autoSummary();
+const eduCount = document.querySelectorAll('#educationList .entry-card').length;
+const expCount = document.querySelectorAll('#experienceList .entry-card').length;
+const projCount = document.querySelectorAll('#projectsList .entry-card').length;
+
+let score = 40;
+score += Math.min(skillCount * 3, 20);
+score += eduCount > 0 ? 10 : 0;
+score += Math.min(expCount * 8, 16);
+score += Math.min(projCount * 6, 12);
+score += summary.length > 60 ? 6 : 0;
+return Math.max(30, Math.min(score, 99));
+}
+
+/* ---------- RENDER PREVIEW ---------- */
+
+function renderPreview(){
+
+const name = document.getElementById('fullName').value.trim();
+const title = document.getElementById('jobTitle').value.trim();
+const email = document.getElementById('email').value.trim();
+const phone = document.getElementById('phone').value.trim();
+const location = document.getElementById('location').value.trim();
+const links = document.getElementById('links').value.trim();
+const skills = document.getElementById('skills').value.trim();
+let summary = document.getElementById('summary').value.trim();
+
+document.getElementById('pName').textContent = name || 'Your Name';
+document.getElementById('pTitle').textContent = title;
+
+const contactParts = [email, phone, location, links].filter(Boolean);
+document.getElementById('pContact').textContent = contactParts.join('  •  ');
+
+if(!summary){
+summary = autoSummary();
+}
+document.getElementById('pSummary').textContent = summary;
+document.getElementById('pSummary').classList.remove('r-empty');
+
+const skillTagsEl = document.getElementById('pSkills');
+const skillList = skills.split(',').map(s=>s.trim()).filter(Boolean);
+if(skillList.length){
+skillTagsEl.innerHTML = skillList.map(s=>`<span class="skill-tag">${escapeHtml(s)}</span>`).join('');
+} else {
+skillTagsEl.innerHTML = '<p class="r-empty">Add skills to see them listed here.</p>';
+}
+
+/* EXPERIENCE */
+const expEl = document.getElementById('pExperience');
+const expCards = document.querySelectorAll('#experienceList .entry-card');
+if(expCards.length === 0){
+expEl.innerHTML = '<p class="r-empty">Add an experience entry to see it here.</p>';
+} else {
+expEl.innerHTML = Array.from(expCards).map(card=>{
+const t = card.querySelector('.exp-title').value.trim();
+const c = card.querySelector('.exp-company').value.trim();
+const d = card.querySelector('.exp-duration').value.trim();
+const desc = card.querySelector('.exp-desc').value;
+return `
+<div class="entry-block">
+<div class="e-head"><span>${escapeHtml(t||'Job Title')}${c?(' — '+escapeHtml(c)):''}</span><span>${escapeHtml(d)}</span></div>
+${bulletsToList(desc)}
+</div>`;
+}).join('');
+}
+
+/* PROJECTS */
+const projEl = document.getElementById('pProjects');
+const projCards = document.querySelectorAll('#projectsList .entry-card');
+if(projCards.length === 0){
+projEl.innerHTML = '<p class="r-empty">Add a project to see it here.</p>';
+} else {
+projEl.innerHTML = Array.from(projCards).map(card=>{
+const t = card.querySelector('.proj-title').value.trim();
+const tech = card.querySelector('.proj-tech').value.trim();
+const desc = card.querySelector('.proj-desc').value;
+return `
+<div class="entry-block">
+<div class="e-head"><span>${escapeHtml(t||'Project Title')}</span></div>
+${tech?`<div class="e-sub">${escapeHtml(tech)}</div>`:''}
+${bulletsToList(desc)}
+</div>`;
+}).join('');
+}
+
+/* EDUCATION */
+const eduEl = document.getElementById('pEducation');
+const eduCards = document.querySelectorAll('#educationList .entry-card');
+if(eduCards.length === 0){
+eduEl.innerHTML = '<p class="r-empty">Add an education entry to see it here.</p>';
+} else {
+eduEl.innerHTML = Array.from(eduCards).map(card=>{
+const degree = card.querySelector('.edu-degree').value.trim();
+const school = card.querySelector('.edu-school').value.trim();
+const years = card.querySelector('.edu-years').value.trim();
+const notes = card.querySelector('.edu-notes').value.trim();
+return `
+<div class="entry-block">
+<div class="e-head"><span>${escapeHtml(degree||'Degree')}${school?(' — '+escapeHtml(school)):''}</span><span>${escapeHtml(years)}</span></div>
+${notes?`<div class="e-sub">${escapeHtml(notes)}</div>`:''}
+</div>`;
+}).join('');
+}
+
+/* ATS SCORE */
+document.getElementById('atsNum').textContent = calculateAts() + '%';
+
+}
+
+/* ---------- TEMPLATE SWITCH ---------- */
+
+document.querySelectorAll('.template-select button').forEach(btn=>{
+btn.addEventListener('click', ()=>{
+document.querySelectorAll('.template-select button').forEach(b=>b.classList.remove('active'));
+btn.classList.add('active');
+const paper = document.getElementById('resumePaper');
+paper.classList.remove('tpl-classic','tpl-modern');
+paper.classList.add('tpl-' + btn.dataset.tpl);
+});
+});
+
+/* ---------- TOP-LEVEL FIELD LISTENERS ---------- */
+
+['fullName','jobTitle','email','phone','location','links','summary','skills'].forEach(id=>{
+document.getElementById(id).addEventListener('input', renderPreview);
+});
+
+/* ---------- ADD BUTTONS ---------- */
+
+document.getElementById('addEducation').addEventListener('click', ()=>{
+addEducationEntry();
+renderPreview();
+});
+
+document.getElementById('addExperience').addEventListener('click', ()=>{
+addExperienceEntry();
+renderPreview();
+});
+
+document.getElementById('addProject').addEventListener('click', ()=>{
+addProjectEntry();
+renderPreview();
+});
+
+/* ---------- ACTIONS ---------- */
+
+document.getElementById('downloadBtn').addEventListener('click', ()=>{
+window.print();
+});
+
+document.getElementById('clearBtn').addEventListener('click', ()=>{
+if(!confirm('Clear all fields and start over?')) return;
+['fullName','jobTitle','email','phone','location','links','summary','skills'].forEach(id=>{
+document.getElementById(id).value = '';
+});
+document.getElementById('educationList').innerHTML = '';
+document.getElementById('experienceList').innerHTML = '';
+document.getElementById('projectsList').innerHTML = '';
+renderPreview();
+});
+
+document.getElementById('sampleBtn').addEventListener('click', ()=>{
+document.getElementById('fullName').value = 'John dae';
+document.getElementById('jobTitle').value = 'AI Engineer';
+document.getElementById('email').value = 'john.dae@gmail.com';
+document.getElementById('phone').value = '+91 1234567890';
+document.getElementById('location').value = 'Hyderabad, India';
+document.getElementById('links').value = 'linkedin.com/in/johndae, github.com/johndae';
+document.getElementById('summary').value = '';
+document.getElementById('skills').value = 'Java, Python, SQL, n8n, JavaScript, REST APIs, Gemini AI';
+
+document.getElementById('educationList').innerHTML = '';
+document.getElementById('experienceList').innerHTML = '';
+document.getElementById('projectsList').innerHTML = '';
+
+addEducationEntry({degree:'B.Tech, Computer Science & Engineering', school:'ABC University', years:'2013 - 2017', notes:'CGPA 8.5 / 10'});
+addExperienceEntry({title:'Automation Intern', company:'Acme Corp', duration:'Jun 2016 - Aug 2016', desc:'Built n8n workflows to automate internal reporting\nIntegrated Gemini AI for content generation tasks\nReduced manual data entry time by 60%'});
+addProjectEntry({title:'AI Resume Builder', tech:'n8n, Gemini AI, Gmail API, PDF Generation API', desc:'Designed an end-to-end workflow that generates ATS-friendly resumes\nAutomated PDF creation and email delivery to users'});
+
+renderPreview();
+});
+
+/* ---------- INIT ---------- */
+
+addEducationEntry();
+addExperienceEntry();
+addProjectEntry();
+renderPreview();
+
+</script>
+
+</body>
+</html>
